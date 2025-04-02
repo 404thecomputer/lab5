@@ -14,11 +14,11 @@ public class PlayerMovement : MonoBehaviour
     public float stamina = 100;
     public float maxStamina = 100;
 
-    public float stamRecoverySpeed = 10;
-    public Vector3 maxSpeed = new Vector3(100, 100, 0);
-    public Vector3 defaultSpeed = new Vector3(100, 100, 0);
-    public float adaptSpeed = 0.1f;
-    public float decaySpeed = (float)(1 * Math.Pow(10, -3));
+    public float stamRecoverySpeed = 0;
+    public Vector3 maxSpeed = new Vector3(10, 10, 0);
+    public Vector3 defaultSpeed = new Vector3(10, 10, 0);
+    public float adaptSpeed = 0.5f;
+    public float decaySpeed = 5;
 
     public float dashMult = 5;
 
