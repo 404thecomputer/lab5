@@ -1,33 +1,45 @@
 using System;
-using System.Xml.Schema;
-using Unity.Mathematics;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.AI;
 
 public class PlayerMovement : MonoBehaviour
 {
     public static PlayerMovement Instance {get; private set;}
 
-    public ParticleSystem sprintParticles;
-
+    [Header("Player Stats")]
     public float stamina = 100;
     public float maxStamina = 100;
+    public float stamRecoverySpeed = 1f;
 
-    public float stamRecoverySpeed = 0;
-    public Vector3 maxSpeed = new Vector3(10, 10, 0);
-    public Vector3 defaultSpeed = new Vector3(10, 10, 0);
+    [Header("Movement Settings")]
+    public float maxSpeed = 10f;
+    public float defaultSpeed = 10f;
     public float adaptSpeed = 0.5f;
-    public float decaySpeed = 5;
+    public float decaySpeed = 5f;
+    public float dashMultiplier = 5f;
+    public float dashStaminaCost = 10f;
+    public float dashDuration = 0.2f;
 
-    public float dashMult = 5;
+    [Header("Visual Effects")]
+    public ParticleSystem sprintParticles;
+    public TrailRenderer movementTrail;
+    public SpriteRenderer sealSprite;
+    public Animator animator;
 
-    public Vector3 currentSpeed = new Vector3(0, 0, 0);
+    [Header("Audio")]
+    public AudioClip dashSound;
+    public AudioClip staminaLowSound;
+    public AudioClip pickupSound;
+
+    // Internal variables
+    private Vector3 currentSpeed = Vector3.zero;
     private Rigidbody2D thisBody;
-
     private AudioSource audioSource;
+    private bool isDashing = false;
+    private float dashTimer = 0f;
+    private bool staminaWasLow = false;
+    private float lowStaminaWarningInterval = 2f;
+    private float lowStaminaTimer = 0f;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake() {
         if (Instance == null) {
             Instance = this;
@@ -38,43 +50,99 @@ public class PlayerMovement : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
     void Start()
     {
+        // Get components
         thisBody = GetComponent<Rigidbody2D>();
-
+        if (thisBody == null)
+        {
+            thisBody = gameObject.AddComponent<Rigidbody2D>();
+            thisBody.gravityScale = 0;
+            thisBody.linearDamping = 0.5f;
+            thisBody.angularDamping = 0.5f;
+            thisBody.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        }
+        
         audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
 
-        sprintParticles = transform.GetComponentInChildren<ParticleSystem>();
+        if (sprintParticles == null)
+        {
+            sprintParticles = GetComponentInChildren<ParticleSystem>();
+        }
+        
+        if (movementTrail == null)
+        {
+            movementTrail = GetComponentInChildren<TrailRenderer>();
+        }
+        
+        if (sealSprite == null)
+        {
+            sealSprite = GetComponent<SpriteRenderer>();
+        }
+        
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
+        
+        // Start with full stamina
+        stamina = maxStamina;
     }
 
-    // Update is called once per frame
     void Update()
     {
+        HandleMovementInput();
+        HandleDashing();
+        RegenerateStamina();
+        UpdateVisuals();
+        CheckStaminaWarning();
+    }
+
+    void HandleMovementInput()
+    {
+        if (isDashing)
+            return;
+            
         float goalSpeedY = 0;
         float goalSpeedX = 0;
 
-        bool xMove = false;
-        bool yMove = false;
+        // Read movement input
         if (Input.GetKey(KeyCode.W)) {
-            goalSpeedY = defaultSpeed.y;
-            yMove = true;
+            goalSpeedY = defaultSpeed;
         }
         if (Input.GetKey(KeyCode.S)) {
-            goalSpeedY = defaultSpeed.y * -1;
-            yMove = true;
+            goalSpeedY = defaultSpeed * -1;
         }
         if (Input.GetKey(KeyCode.A)) {
-            goalSpeedX = defaultSpeed.x * -1;
-            xMove = true;
+            goalSpeedX = defaultSpeed * -1;
+            
+            // Flip sprite to face left
+            if (sealSprite != null)
+            {
+                sealSprite.flipX = true;
+            }
         }
         if (Input.GetKey(KeyCode.D)) {
-            goalSpeedX = defaultSpeed.x;
-            xMove = true;
+            goalSpeedX = defaultSpeed;
+            
+            // Flip sprite to face right
+            if (sealSprite != null)
+            {
+                sealSprite.flipX = false;
+            }
         }
+
+        // Calculate new speed with smooth acceleration/deceleration
         float xDif = goalSpeedX - currentSpeed.x;
         float yDif = goalSpeedY - currentSpeed.y;
         float xSpeed;
         float ySpeed;
+        
         if (Math.Abs(xDif) < 0.1f) {
             xSpeed = goalSpeedX;
         } else if (goalSpeedX != 0){
@@ -90,6 +158,7 @@ public class PlayerMovement : MonoBehaviour
         } else {
             xSpeed = currentSpeed.x + (Math.Sign(xDif) * decaySpeed * Time.deltaTime);
         }
+        
         if (Math.Abs(yDif) < 0.1f) {
             ySpeed = goalSpeedY;
         } else if (goalSpeedY != 0){
@@ -105,27 +174,144 @@ public class PlayerMovement : MonoBehaviour
         } else {
             ySpeed = currentSpeed.y + (Math.Sign(yDif) * decaySpeed * Time.deltaTime);
         }
+        
         currentSpeed = new Vector3(xSpeed, ySpeed, 0);
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            if (stamina > 10) {
-                stamina -= 10;
+        
+        // Apply movement
+        thisBody.linearVelocity = currentSpeed;
+    }
 
-                audioSource.Play();
-
+    void HandleDashing()
+    {
+        // Dash input
+        if (Input.GetKeyDown(KeyCode.Space) && !isDashing && stamina >= dashStaminaCost) 
+        {
+            // Consume stamina
+            stamina -= dashStaminaCost;
+            
+            // Start dash
+            isDashing = true;
+            dashTimer = dashDuration;
+            
+            // Set dash velocity
+            Vector3 dashDirection;
+            if (currentSpeed.magnitude > 0.1f)
+            {
+                dashDirection = currentSpeed.normalized;
+            }
+            else
+            {
+                // Default dash forward if not moving
+                dashDirection = new Vector3(0, 1, 0);
+            }
+            
+            currentSpeed = dashDirection * defaultSpeed * dashMultiplier;
+            thisBody.linearVelocity = currentSpeed;
+            
+            // Visual and audio effects
+            if (sprintParticles != null)
+            {
                 sprintParticles.Play();
-                if(xMove && yMove) {
-                    currentSpeed = new Vector3(goalSpeedX * dashMult, goalSpeedY *dashMult, 0);
-                } else {
-                    currentSpeed = new Vector3(1.5f * goalSpeedX * dashMult, 1.5f * goalSpeedY *dashMult, 0);
+            }
+            
+            if (movementTrail != null)
+            {
+                movementTrail.emitting = true;
+            }
+            
+            if (audioSource != null && dashSound != null)
+            {
+                audioSource.PlayOneShot(dashSound);
+            }
+        }
+        
+        // Update dash timer
+        if (isDashing)
+        {
+            dashTimer -= Time.deltaTime;
+            
+            if (dashTimer <= 0)
+            {
+                // End dash
+                isDashing = false;
+                
+                // Stop trail
+                if (movementTrail != null)
+                {
+                    movementTrail.emitting = false;
                 }
             }
-            //currentSpeed = new Vector3(Math.Max(Math.Min(goalSpeedX + currentSpeed.x, defaultSpeed.x), defaultSpeed.x * -1) * dashMult, Math.Max(Math.Min(goalSpeedY + currentSpeed.y, defaultSpeed.y), defaultSpeed.y * -1) * dashMult, 0);
         }
-        if(stamina < maxStamina)
+    }
+
+    void RegenerateStamina()
+    {
+        if (stamina < maxStamina)
+        {
             stamina += stamRecoverySpeed * Time.deltaTime;
-        if(stamina > maxStamina) {
-            stamina = maxStamina;
+            if (stamina > maxStamina)
+            {
+                stamina = maxStamina;
+            }
         }
-        thisBody.MovePosition(gameObject.transform.position + new Vector3(currentSpeed.x * Time.deltaTime, currentSpeed.y * Time.deltaTime, 0));
+    }
+
+    void UpdateVisuals()
+    {
+        // Update animator parameters if available
+        if (animator != null)
+        {
+            animator.SetFloat("Speed", currentSpeed.magnitude / defaultSpeed);
+            animator.SetBool("IsDashing", isDashing);
+        }
+    }
+    
+    void CheckStaminaWarning()
+    {
+        bool isStaminaLow = stamina < (maxStamina * 0.25f);
+        
+        // Play warning sound when stamina gets low
+        if (isStaminaLow && !staminaWasLow)
+        {
+            if (audioSource != null && staminaLowSound != null)
+            {
+                lowStaminaTimer = lowStaminaWarningInterval;
+                audioSource.PlayOneShot(staminaLowSound);
+            }
+        }
+        
+        // Repeat warning sound at intervals
+        if (isStaminaLow)
+        {
+            lowStaminaTimer -= Time.deltaTime;
+            if (lowStaminaTimer <= 0)
+            {
+                if (audioSource != null && staminaLowSound != null)
+                {
+                    audioSource.PlayOneShot(staminaLowSound, 0.5f);
+                }
+                lowStaminaTimer = lowStaminaWarningInterval;
+            }
+        }
+        
+        staminaWasLow = isStaminaLow;
+    }
+    
+    public void PlayPickupSound()
+    {
+        if (audioSource != null && pickupSound != null)
+        {
+            audioSource.PlayOneShot(pickupSound);
+        }
+    }
+    
+    // Method to reset player for a new game
+    public void ResetPlayer()
+    {
+        stamina = maxStamina;
+        currentSpeed = Vector3.zero;
+        thisBody.linearVelocity = Vector3.zero;
+        isDashing = false;
+        staminaWasLow = false;
     }
 }
