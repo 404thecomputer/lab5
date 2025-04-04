@@ -243,18 +243,34 @@ public class BurritoGameManager : MonoBehaviour
         
         // Show completion panel
         if (levelCompletePanel != null)
+        {
             levelCompletePanel.SetActive(true);
-        
-        // Advance to next level or show victory
-        if (currentLevel >= maxLevel)
-        {
-            // Game complete
-            StartCoroutine(LoadSceneAfterDelay("Victory", 3f));
+            
+            // Optionally update stats on the level complete panel
+            UpdateLevelCompleteStats();
         }
-        else
+        
+        // We'll advance to next level when the Next Level button is clicked
+        // No need for LoadSceneAfterDelay anymore
+    }
+
+    void UpdateLevelCompleteStats()
+    {
+        // Find TextMeshPro components in the level complete panel
+        TextMeshProUGUI[] texts = levelCompletePanel.GetComponentsInChildren<TextMeshProUGUI>();
+        
+        foreach (TextMeshProUGUI text in texts)
         {
-            // Next level
-            StartCoroutine(LoadNextLevel());
+            if (text.name.Contains("BurritosCollected"))
+            {
+                text.text = "Burritos Collected: " + burritosCollected + "/" + GetBurritosRequiredForLevel(currentLevel);
+            }
+            else if (text.name.Contains("TimeRemaining"))
+            {
+                int minutes = Mathf.FloorToInt(remainingTime / 60);
+                int seconds = Mathf.FloorToInt(remainingTime % 60);
+                text.text = string.Format("Time Remaining: {0:00}:{1:00}", minutes, seconds);
+            }
         }
     }
     
@@ -268,12 +284,37 @@ public class BurritoGameManager : MonoBehaviour
             audioSource.PlayOneShot(gameOverSound);
         }
         
-        // Show game over panel
+        // Show game over panel instead of loading a scene
         if (gameOverPanel != null)
+        {
             gameOverPanel.SetActive(true);
+            
+            // Optionally update stats on the game over panel
+            UpdateGameOverStats();
+        }
+        else
+        {
+            Debug.LogError("Game Over Panel is not assigned!");
+        }
+    }
+
+    void UpdateGameOverStats()
+    {
+        // Find TextMeshPro components in the game over panel
+        TextMeshProUGUI[] texts = gameOverPanel.GetComponentsInChildren<TextMeshProUGUI>();
         
-        // Load game over scene after delay
-        StartCoroutine(LoadSceneAfterDelay("GameOver", 3f));
+        foreach (TextMeshProUGUI text in texts)
+        {
+            // Update specific texts based on their names or tags
+            if (text.name.Contains("BurritosCollected"))
+            {
+                text.text = "Burritos Collected: " + burritosCollected;
+            }
+            else if (text.name.Contains("LevelReached"))
+            {
+                text.text = "Level Reached: " + currentLevel;
+            }
+        }
     }
     
     void ClearAllBurritos()
@@ -298,10 +339,32 @@ public class BurritoGameManager : MonoBehaviour
         StartLevel(currentLevel);
     }
     
-    System.Collections.IEnumerator LoadSceneAfterDelay(string sceneName, float delay)
+    // Add these methods for the buttons on your panels:
+    public void NextLevel()
     {
-        yield return new WaitForSeconds(delay);
-        SceneManager.LoadScene(sceneName);
+        if (levelCompletePanel != null)
+            levelCompletePanel.SetActive(false);
+        
+        // Increment level
+        currentLevel++;
+        
+        // Check if we've completed all levels
+        if (currentLevel > maxLevel)
+        {
+            // Victory! Show victory message or panel
+            ShowVictoryPanel();
+        }
+        else
+        {
+            // Start the next level
+            StartLevel(currentLevel);
+        }
+    }
+
+    public void ShowVictoryPanel()
+    {
+        Debug.Log("Victory! All levels complete!");
+        QuitToMainMenu();
     }
     
     // Helper methods to get level-specific difficulty values
