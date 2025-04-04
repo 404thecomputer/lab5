@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class BurritoGameManager : MonoBehaviour
 {
@@ -28,10 +29,10 @@ public class BurritoGameManager : MonoBehaviour
     public int[] burritosRequiredPerLevel = { 10, 15, 20 };
     
     [Header("UI References")]
-    public Text levelText;
-    public Text timerText;
-    public Text burritoCountText;
-    public Text staminaText;
+    public TextMeshProUGUI levelText; // Changed to TextMeshProUGUI
+    public TextMeshProUGUI timerText; // Changed to TextMeshProUGUI
+    public TextMeshProUGUI burritoCountText; // Changed to TextMeshProUGUI
+    public TextMeshProUGUI staminaText; // Changed to TextMeshProUGUI
     public GameObject levelCompletePanel;
     public GameObject gameOverPanel;
     
