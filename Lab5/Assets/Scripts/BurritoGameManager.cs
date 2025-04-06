@@ -402,7 +402,7 @@ public class BurritoGameManager : MonoBehaviour
         }
         
         // Load first level
-        SceneManager.LoadScene("Level1");
+        SceneManager.LoadScene("Main");
         
         // Start fresh
         currentLevel = 1;
@@ -411,7 +411,16 @@ public class BurritoGameManager : MonoBehaviour
     
     public void QuitToMainMenu()
     {
+        // Deactivate any active panels
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+        if (levelCompletePanel != null)
+            levelCompletePanel.SetActive(false);
+        
+        // Clear any active burritos
         ClearAllBurritos();
-        SceneManager.LoadScene("MainMenu");
+        
+        // Load main menu scene
+        SceneManager.LoadScene("Title");
     }
 }
