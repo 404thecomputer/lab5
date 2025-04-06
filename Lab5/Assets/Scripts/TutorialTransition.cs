@@ -13,7 +13,10 @@ public class TutorialTransition : MonoBehaviour
     {
         
     }
-    public void ReactToClick() {
-        Initiate.Fade("Tutorial", Color.black, 0.5);
+    
+    public void ReactToClick() 
+    {
+        // Use the scene fader to load the Tutorial scene
+        SceneFader.Instance.FadeToScene("Tutorial");
     }
 }

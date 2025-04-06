@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class TitleTransition : MonoBehaviour
+public class MainTransition : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -16,7 +16,7 @@ public class TitleTransition : MonoBehaviour
     
     public void ReactToClick() 
     {
-        // Use the scene fader to load the Title scene
-        SceneFader.Instance.FadeToScene("Title");
+        // Use the scene fader to load the main scene
+        SceneFader.Instance.FadeToScene("main");
     }
 }

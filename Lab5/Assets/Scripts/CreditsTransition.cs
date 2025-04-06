@@ -13,7 +13,10 @@ public class CreditsTransition : MonoBehaviour
     {
         
     }
-    public void ReactToClick() {
-        Initiate.Fade("Credits", Color.black, 0.5);
+    
+    public void ReactToClick() 
+    {
+        // Use the scene fader to load the Credits scene
+        SceneFader.Instance.FadeToScene("Credits");
     }
 }
