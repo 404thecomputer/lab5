@@ -148,7 +148,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
@@ -176,6 +176,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 967b66c3d7b23ee49bb82397b235fcbd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 5
+  changeDirectionInterval: 2
+  boundsRadius: 15
+  shouldWrap: 1
+  staminaRestoreAmount: 30
+  destroyDelay: 0.5
+  collectEffectPrefab: {fileID: 0}
+  moveParticles: {fileID: 0}
 --- !u!82 &6894259630927614254
 AudioSource:
   m_ObjectHideFlags: 0
