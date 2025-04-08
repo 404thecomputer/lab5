@@ -66,6 +66,8 @@ public class BurritoGameManager : MonoBehaviour
     
     void Start()
     {
+        Debug.Log("BurritoGameManager Start called");
+        
         // Setup audio
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
@@ -81,16 +83,25 @@ public class BurritoGameManager : MonoBehaviour
             audioSource.Play();
         }
         
-        // Initialize UI
-        UpdateUI();
-        
-        // Hide panels
+        // Make sure panels are hidden
+        Debug.Log("Hiding panels in Start");
         if (levelCompletePanel != null)
             levelCompletePanel.SetActive(false);
         if (gameOverPanel != null)
             gameOverPanel.SetActive(false);
-            
+        
+        // Initialize game state
+        Debug.Log("Setting initial game values");
+        currentLevel = 1;
+        burritosCollected = 0;
+        remainingTime = timeLimit;
+        isLevelActive = true;
+        
+        // Initialize UI
+        UpdateUI();
+        
         // Start the first level
+        Debug.Log("Starting first level from Start");
         StartLevel(currentLevel);
     }
     
@@ -176,10 +187,18 @@ public class BurritoGameManager : MonoBehaviour
     
     void UpdateUI()
     {
+        // Debug what we're updating to
+        Debug.Log($"UpdateUI - Level: {currentLevel}, Time: {remainingTime}, Burritos: {burritosCollected}/{GetBurritosRequiredForLevel(currentLevel)}");
+        
         // Update level text
         if (levelText != null)
         {
             levelText.text = "Level: " + currentLevel;
+            Debug.Log($"Set levelText to: {levelText.text}");
+        }
+        else
+        {
+            Debug.LogWarning("levelText is null in UpdateUI");
         }
         
         // Update timer text
@@ -188,18 +207,33 @@ public class BurritoGameManager : MonoBehaviour
             int minutes = Mathf.FloorToInt(remainingTime / 60);
             int seconds = Mathf.FloorToInt(remainingTime % 60);
             timerText.text = string.Format("Time: {0:00}:{1:00}", minutes, seconds);
+            Debug.Log($"Set timerText to: {timerText.text}");
+        }
+        else
+        {
+            Debug.LogWarning("timerText is null in UpdateUI");
         }
         
         // Update burrito count text
         if (burritoCountText != null)
         {
             burritoCountText.text = "Burritos: " + burritosCollected + " / " + GetBurritosRequiredForLevel(currentLevel);
+            Debug.Log($"Set burritoCountText to: {burritoCountText.text}");
+        }
+        else
+        {
+            Debug.LogWarning("burritoCountText is null in UpdateUI");
         }
         
         // Update stamina text
         if (staminaText != null && PlayerMovement.Instance != null)
         {
             staminaText.text = "Stamina: " + Mathf.RoundToInt(PlayerMovement.Instance.stamina);
+            Debug.Log($"Set staminaText to: {staminaText.text}");
+        }
+        else if (staminaText == null)
+        {
+            Debug.LogWarning("staminaText is null in UpdateUI");
         }
     }
     
@@ -342,29 +376,243 @@ public class BurritoGameManager : MonoBehaviour
     // Add these methods for the buttons on your panels:
     public void NextLevel()
     {
+        // Hide panels
         if (levelCompletePanel != null)
             levelCompletePanel.SetActive(false);
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
         
-        // Increment level
-        currentLevel++;
-        
-        // Check if we've completed all levels
-        if (currentLevel > maxLevel)
+        // Clear ALL burritos before changing scenes
+        GameObject[] allBurritos = GameObject.FindGameObjectsWithTag("Burrito");
+        foreach (GameObject burrito in allBurritos)
         {
-            // Victory! Show victory message or panel
-            ShowVictoryPanel();
+            Destroy(burrito);
+        }
+        
+        // Clear the active burritos list
+        activeBurritos.Clear();
+        
+        // Store the CURRENT level before clearing references
+        int nextLevelNumber = currentLevel + 1;
+        Debug.Log("Going to level: " + nextLevelNumber);
+        
+        // IMPORTANT: Clear all UI references so they'll be found in the new scene
+        levelText = null;
+        timerText = null;
+        burritoCountText = null;
+        staminaText = null;
+        levelCompletePanel = null;
+        gameOverPanel = null;
+        
+        // Set the current level to the next level BEFORE loading the scene
+        currentLevel = nextLevelNumber;
+        
+        // Load the appropriate scene
+        string nextSceneName = "Level" + nextLevelNumber;
+        Debug.Log("Loading scene: " + nextSceneName + " for level: " + currentLevel);
+        
+        SceneManager.LoadScene(nextSceneName);
+        
+        // Wait for scene to load, then start new level
+        StartCoroutine(SetupNewLevel());
+    }
+    
+    private void ForceUpdateLevelAndTime()
+    {
+        // Debug what we're trying to set
+        Debug.Log($"Forcing update for Level: {currentLevel}, Time: {remainingTime}");
+        
+        // Find text elements more aggressively if they're null
+        if (levelText == null || timerText == null)
+        {
+            // Find ALL UI text elements
+            TextMeshProUGUI[] allTexts = FindObjectsOfType<TextMeshProUGUI>(true);
+            
+            foreach (TextMeshProUGUI text in allTexts)
+            {
+                // Log each text element we find
+                Debug.Log($"Found text: {text.name} with text: {text.text}");
+                
+                // Try to identify by contents and name
+                if (text.name.ToLower().Contains("level"))
+                {
+                    levelText = text;
+                    Debug.Log($"Set levelText to {text.name}");
+                }
+                else if (text.name.ToLower().Contains("time") || text.name.ToLower().Contains("timer"))
+                {
+                    timerText = text;
+                    Debug.Log($"Set timerText to {text.name}");
+                }
+            }
+        }
+        
+        // Directly set values regardless of previous content
+        if (levelText != null)
+        {
+            levelText.text = "Level: " + currentLevel;
+            Debug.Log($"Updated levelText to: {levelText.text}");
         }
         else
         {
-            // Start the next level
-            StartLevel(currentLevel);
+            Debug.LogError("Still couldn't find levelText!");
         }
+        
+        if (timerText != null)
+        {
+            int minutes = Mathf.FloorToInt(remainingTime / 60);
+            int seconds = Mathf.FloorToInt(remainingTime % 60);
+            timerText.text = string.Format("Time: {0:00}:{1:00}", minutes, seconds);
+            Debug.Log($"Updated timerText to: {timerText.text}");
+        }
+        else
+        {
+            Debug.LogError("Still couldn't find timerText!");
+        }
+    }
+
+    private IEnumerator SetupNewLevel()
+    {
+        // Wait for TWO frames to ensure the scene is fully loaded
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+        
+        Debug.Log("Setting up new level: " + currentLevel);
+        
+        // Try to find the exact "Level Text" element specifically
+        GameObject levelTextObj = GameObject.Find("Level Text");
+        if (levelTextObj != null)
+        {
+            levelText = levelTextObj.GetComponent<TextMeshProUGUI>();
+            Debug.Log("Found Level Text directly: " + (levelText != null));
+        }
+        
+        // Find UI elements in the new scene - more robust approach for other elements
+        TextMeshProUGUI[] allTexts = FindObjectsOfType<TextMeshProUGUI>(true);
+        Debug.Log("Found " + allTexts.Length + " TextMeshProUGUI components");
+        
+        // Try to find by name (case insensitive)
+        foreach (TextMeshProUGUI text in allTexts)
+        {
+            string textName = text.gameObject.name.ToLower();
+            
+            if (levelText == null && textName.Contains("level") && !textName.Contains("complete"))
+            {
+                levelText = text;
+                Debug.Log("Found LevelText: " + text.name);
+            }
+            else if (textName.Contains("timer") || textName.Contains("time"))
+            {
+                timerText = text;
+                Debug.Log("Found TimerText: " + text.name);
+            }
+            else if (textName.Contains("burrito") && textName.Contains("count"))
+            {
+                burritoCountText = text;
+                Debug.Log("Found BurritoCountText: " + text.name);
+            }
+            else if (textName.Contains("stamina") && !textName.Contains("bar"))
+            {
+                staminaText = text;
+                Debug.Log("Found StaminaText: " + text.name);
+            }
+        }
+        
+        // Find panels by searching all GameObjects with specific names
+        GameObject[] allObjects = FindObjectsOfType<GameObject>(true);
+        foreach (GameObject obj in allObjects)
+        {
+            string objName = obj.name.ToLower();
+            
+            if (objName.Contains("levelcompletepanel"))
+            {
+                levelCompletePanel = obj;
+                Debug.Log("Found LevelCompletePanel: " + obj.name);
+            }
+            else if (objName.Contains("gameoverpanel"))
+            {
+                gameOverPanel = obj;
+                Debug.Log("Found GameOverPanel: " + obj.name);
+            }
+        }
+        
+        // Make sure panels are hidden
+        if (levelCompletePanel != null)
+            levelCompletePanel.SetActive(false);
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+            
+        // Start the new level
+        burritosCollected = 0;
+        remainingTime = timeLimit; // Reset to full time
+        isLevelActive = true;
+        spawnTimer = 0.1f;
+        
+        // Force update level text specifically
+        if (levelText != null)
+        {
+            levelText.text = "Level: " + currentLevel;
+            Debug.Log("Force set level text to: " + levelText.text);
+        }
+        
+        // Update UI using the standard method
+        UpdateUI();
+        
+        // Log final UI reference status
+        Debug.Log("UI references after setup: LevelText=" + (levelText != null) + 
+                ", TimerText=" + (timerText != null) + 
+                ", BurritoCountText=" + (burritoCountText != null) + 
+                ", StaminaText=" + (staminaText != null));
+    }
+
+    // Helper method to find child objects recursively by name
+    private Transform FindChildRecursively(Transform parent, string name)
+    {
+        // Check direct children first
+        Transform child = parent.Find(name);
+        if (child != null)
+            return child;
+        
+        // Check children of children
+        for (int i = 0; i < parent.childCount; i++)
+        {
+            child = FindChildRecursively(parent.GetChild(i), name);
+            if (child != null)
+                return child;
+        }
+        
+        return null;
     }
 
     public void ShowVictoryPanel()
     {
-        Debug.Log("Victory! All levels complete!");
-        QuitToMainMenu();
+        // Create a victory UI or modify existing one
+        if (levelCompletePanel != null)
+        {
+            levelCompletePanel.SetActive(true);
+            
+            // Find and modify the title to show victory
+            TextMeshProUGUI[] texts = levelCompletePanel.GetComponentsInChildren<TextMeshProUGUI>();
+            foreach (TextMeshProUGUI text in texts)
+            {
+                if (text.name.Contains("Title"))
+                {
+                    text.text = "Victory! All Levels Complete!";
+                    text.color = Color.yellow; // Make it fancy
+                }
+            }
+            
+            // Play victory sound
+            if (audioSource != null && levelCompleteSound != null)
+            {
+                audioSource.PlayOneShot(levelCompleteSound, 1.5f); // Play at higher volume
+            }
+        }
+        else
+        {
+            Debug.Log("Victory! All levels complete!");
+            QuitToMainMenu();
+        }
     }
     
     // Helper methods to get level-specific difficulty values
@@ -395,17 +643,39 @@ public class BurritoGameManager : MonoBehaviour
     // Public methods for UI buttons
     public void RestartGame()
     {
-        // Reset player
+        // Set our instance to null to allow a new one to be created
+        Instance = null;
+        
+        // Find and destroy any player objects
         if (PlayerMovement.Instance != null)
         {
-            PlayerMovement.Instance.ResetPlayer();
+            Destroy(PlayerMovement.Instance.gameObject);
         }
         
-        // Load first level
-        SceneManager.LoadScene("Main");
+        // Destroy this game manager
+        Destroy(gameObject);
         
-        // Start fresh
-        currentLevel = 1;
+        // Load the main scene
+        SceneManager.LoadScene("Main");
+    }
+    private IEnumerator ResetAfterSceneLoad()
+    {
+        // Wait for the end of the frame to ensure scene is loaded
+        yield return new WaitForEndOfFrame();
+        
+        // Make absolutely sure panels are disabled after scene load
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+        if (levelCompletePanel != null)
+            levelCompletePanel.SetActive(false);
+        
+        // Reset the timer again
+        remainingTime = timeLimit;
+        
+        // Update the UI
+        UpdateUI();
+        
+        // Start the first level
         StartLevel(1);
     }
     
