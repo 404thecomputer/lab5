@@ -33,4 +33,6 @@ The burrito movement behavior and scene navigation was a struggle and several bu
 
 -- contributions
 
+Joseph - Worked on improving player movement, AI movement for the burritos, a Game manager that transitions between scenes and incrementally gets harder, as well as transitions between the title menu and the game, and a full working ui to display all needed information for the player.
+
 
