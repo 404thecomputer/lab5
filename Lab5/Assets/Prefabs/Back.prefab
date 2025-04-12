@@ -122,9 +122,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 11500000, guid: 017f4e3439940574cac09074c7cf6020, type: 3}
-        m_TargetAssemblyTypeName: UnityEngine.Object, UnityEngine
-        m_MethodName: 
+      - m_Target: {fileID: 9166922708914168934}
+        m_TargetAssemblyTypeName: TitleTransition, Assembly-CSharp
+        m_MethodName: ReactToClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

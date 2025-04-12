@@ -278,6 +278,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Back
       objectReference: {fileID: 0}
+    - target: {fileID: 1525740759760523577, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2074990709}
+    - target: {fileID: 1525740759760523577, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ReactToClick
+      objectReference: {fileID: 0}
     - target: {fileID: 3495529474651378979, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
       propertyPath: m_fontAsset
       value: 
@@ -754,6 +762,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2059132177}
   m_CullTransparentMesh: 1
+--- !u!114 &2074990709 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9166922708914168934, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+  m_PrefabInstance: {fileID: 1207393930}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 017f4e3439940574cac09074c7cf6020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2120650561
 GameObject:
   m_ObjectHideFlags: 0
