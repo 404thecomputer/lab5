@@ -6,6 +6,7 @@ public class CreditsTransition : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        // Ensure normal time scale when starting a scene
         Time.timeScale = 1.0f;
     }
 
@@ -17,7 +18,7 @@ public class CreditsTransition : MonoBehaviour
     
     public void ReactToClick() 
     {
-        // Use the scene fader to load the Credits scene
+        // Use SceneManager directly instead of SceneFader
         SceneManager.LoadScene("Credits");
     }
 }

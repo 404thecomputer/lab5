@@ -6,7 +6,8 @@ public class TutorialTransition : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        // Ensure normal time scale when starting a scene
+        Time.timeScale = 1.0f;
     }
 
     // Update is called once per frame
@@ -17,7 +18,7 @@ public class TutorialTransition : MonoBehaviour
     
     public void ReactToClick() 
     {
-        // Use the scene fader to load the Tutorial scene
+        // Use SceneManager directly instead of SceneFader
         SceneManager.LoadScene("Tutorial");
     }
 }
