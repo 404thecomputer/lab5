@@ -27,12 +27,13 @@ The burrito movement behavior and scene navigation was a struggle and several bu
 
 - burrito sprite: https://www.google.com/search?q=burrito+png&sca_esv=8ad78d7cd882e8ff&rlz=1C1CHBF_enUS1015US1015&udm=2&biw=1282&bih=897&sxsrf=AHTn8zoFqnAnE2ZdjXaPasocEn6DdpObEA%3A1743919827427&ei=0xryZ_ntGfHhwN4Ph7fkkQ4&ved=0ahUKEwi5o9LO38KMAxXxMNAFHYcbOeIQ4dUDCBQ&uact=5&oq=burrito+png&gs_lp=EgNpbWciC2J1cnJpdG8gcG5nMgUQABiABDIFEAAYgAQyBRAAGIAEMgQQABgeMgQQABgeMgQQABgeMgQQABgeMgQQABgeMgYQABgFGB4yBhAAGAUYHkjYC1CHBVjjCnABeACQAQCYAWOgAeECqgEBNLgBA8gBAPgBAZgCBaAC9gLCAg0QABiABBixAxhDGIoFwgIGEAAYBxgewgIIEAAYgAQYsQPCAgQQABgDwgIKEAAYgAQYQxiKBZgDAIgGAZIHAzMuMqAHvRSyBwMyLjK4B_AC&sclient=img
 
-- 
+- Main Menu Background : https://assetstore.unity.com/packages/2d/environments/2d-platformer-lovely-snowy-292417
 
+- Font : https://www.dafont.com/cute-dino-2.font
 
 
 -- contributions
 
 Joseph - Worked on improving player movement, AI movement for the burritos, a Game manager that transitions between scenes and incrementally gets harder, as well as transitions between the title menu and the game, and a full working ui to display all needed information for the player.
 
-Jake - Created Title, Tutorial, and Credits Pages, as well as transitions between and from each and buttons to start the game.
+Jake - Created Title, Tutorial, and Credits Pages, as well as transitions between and from each and buttons to start the game; worked on UI and found and implemented the custom font for the game; published the game onto itch and adjusted it to the right resolution.
