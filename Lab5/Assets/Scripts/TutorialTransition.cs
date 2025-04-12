@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class TutorialTransition : MonoBehaviour
 {
@@ -17,6 +18,6 @@ public class TutorialTransition : MonoBehaviour
     public void ReactToClick() 
     {
         // Use the scene fader to load the Tutorial scene
-        SceneFader.Instance.FadeToScene("Tutorial");
+        SceneManager.LoadScene("Tutorial");
     }
 }

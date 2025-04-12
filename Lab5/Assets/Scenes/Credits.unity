@@ -158,8 +158,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2.0831, y: 0.8666}
-  m_SizeDelta: {x: 867.8337, y: 324.2669}
+  m_AnchoredPosition: {x: 0.0011292, y: -0.00057221}
+  m_SizeDelta: {x: 626.46, y: 241.82}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &969017304
 MonoBehaviour:
@@ -184,10 +184,13 @@ MonoBehaviour:
   m_text: 'Hi, I''m a placeholder! Make sure to add the rest of the credits here!
 
     Menu
-    background - "2D Platformer - Lovely Snowy" by HobiSoLoved'
+    background - "2D Platformer - Lovely Snowy" by HobiSoLoved
+
+    Cute Dino Font
+    by Khurasan'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ca2327ba0359c614ba5fb9a914f95598, type: 2}
+  m_sharedMaterial: {fileID: -5546659322483974453, guid: ca2327ba0359c614ba5fb9a914f95598, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -249,7 +252,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 4.8397217, z: 0, w: -1.2099304}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -274,6 +277,26 @@ PrefabInstance:
     - target: {fileID: 630216361784957192, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
       propertyPath: m_Name
       value: Back
+      objectReference: {fileID: 0}
+    - target: {fileID: 1525740759760523577, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2074990709}
+    - target: {fileID: 1525740759760523577, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ReactToClick
+      objectReference: {fileID: 0}
+    - target: {fileID: 3495529474651378979, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: ca2327ba0359c614ba5fb9a914f95598, type: 2}
+    - target: {fileID: 3495529474651378979, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: -5546659322483974453, guid: ca2327ba0359c614ba5fb9a914f95598, type: 2}
+    - target: {fileID: 3495529474651378979, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+      propertyPath: m_hasFontAssetChanged
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4198026017273795272, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
       propertyPath: m_Pivot.x
@@ -739,6 +762,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2059132177}
   m_CullTransparentMesh: 1
+--- !u!114 &2074990709 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9166922708914168934, guid: a85dc42be8bc3a84da6fd8d618aab9a1, type: 3}
+  m_PrefabInstance: {fileID: 1207393930}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 017f4e3439940574cac09074c7cf6020, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2120650561
 GameObject:
   m_ObjectHideFlags: 0
@@ -833,8 +867,8 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 922537217}
   - {fileID: 2059132178}
+  - {fileID: 922537217}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
